@@ -1,15 +1,27 @@
 package com.example.werewolfcompanion
 
 import android.os.Bundle
+import android.widget.GridView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.werewolfcompanion.ui.theme.WerewolfCompanionTheme
+import com.example.werewolfcompanion.Role
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,24 +63,40 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, navController: NavHostController) {
+private fun MainScreen(modifier: Modifier = Modifier, navController: NavHostController) {
+    var selectedRoles by remember { mutableStateOf<List<Role>>(emptyList()) }
+
     Box(
         modifier = modifier
+
     ) {
-        // Top box to show selected roles
+        Text(
+            text = "Selected Roles",
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .height(100.dp)
-                .background(Color.DarkGray)
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Selected Roles Show Up Here",
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White
-            )
+                .fillMaxWidth(0.9f)
+                .fillMaxHeight(0.15f)
+                .padding(32.dp)
+                .background(Color.LightGray)
+        ){
+
+            LazyRow {
+                items(selectedRoles) { role ->
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .aspectRatio(1f)
+                            .background(Color.White)
+                            .align(alignment = Alignment.BottomCenter)// Set background color
+                    ) {
+                        RoleItem(role) { _, _ ->}
+
+                    }
+                }
+            }
         }
 
         // Middle rectangle to hold icons
@@ -78,11 +107,39 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavHostController) 
                 .fillMaxHeight(0.6f)
                 .background(Color.LightGray)
         ) {
-            // Placeholder for future icons
-            Text(
-                text = "All Roles Here",
-                modifier = Modifier.align(Alignment.Center)
-            )
+            LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 64.dp)
+            ) {
+
+                var roles: List<Role> = listOf(
+                    Role(1, "Werewolf"),
+                    Role(2, "Villager"),
+                    Role(3, "Seer"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role"),
+                    Role(1, "Role")
+                )
+
+                items(roles) { role ->
+                    RoleItem(role) { selectedRole, isSelected ->
+                        if (isSelected) {
+                            selectedRoles = selectedRoles + selectedRole
+                        } else {
+                            selectedRoles = selectedRoles - selectedRole
+                        }
+                    }
+                }
+            }
+
         }
 
         Column(
@@ -110,6 +167,7 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavHostController) 
     }
 }
 
+
 @Composable
 fun SettingsScreen(navController: NavHostController) {
     Column(
@@ -127,6 +185,36 @@ fun SettingsScreen(navController: NavHostController) {
     }
 }
 
+ @Composable
+ fun EditRolesScreen(navController: NavHostController) {
+     Box(modifier = Modifier
+         .fillMaxWidth()
+         .padding(16.dp)
+     ) {
+
+     }
+
+ }
+
+
+@Composable
+fun RoleItem(role: Role,  onRoleSelected: (Role, Boolean) -> Unit) {
+    var isSelected by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .fillMaxSize()
+            .padding(3.dp)
+            .background(if (isSelected) Color.Green else Color.White)
+            .clickable {
+                isSelected = !isSelected
+                onRoleSelected(role, isSelected)
+            }
+    ) {
+        Text(text = role.roleName)
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
@@ -134,3 +222,5 @@ fun MainScreenPreview() {
         MainScreen(navController = rememberNavController())
     }
 }
+
+
